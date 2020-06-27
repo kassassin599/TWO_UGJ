@@ -15,6 +15,8 @@ public class PlayerOneController : MonoBehaviour
 
     RaycastHit2D hit;
 
+    bool goRight = true;
+
     private void Start()
     {
         Physics2D.queriesStartInColliders = false;
@@ -23,13 +25,18 @@ public class PlayerOneController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetKey(KeyCode.A) && goRight)
         {
             transform.Translate(Vector3.right * Time.deltaTime * playerSpeed);
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetKey(KeyCode.A) && !goRight)
         {
             transform.Translate(Vector3.right * Time.deltaTime * -playerSpeed);
+        }
+
+        if (Input.GetKeyUp(KeyCode.A))
+        {
+            goRight = !goRight;
         }
 
         hit = Physics2D.Raycast(transform.position, Vector2.right, lineLength, layerMask);

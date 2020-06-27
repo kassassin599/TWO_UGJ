@@ -7,15 +7,22 @@ public class PlayerTwoController : MonoBehaviour
     [SerializeField]
     float playerSpeed = 3f;
 
+    bool goRight = true;
+
     private void Update()
     {
-        if (Input.GetKey(KeyCode.RightArrow))
+        if (Input.GetKey(KeyCode.LeftArrow) && goRight)
         {
             transform.Translate(Vector3.right * Time.deltaTime * playerSpeed);
         }
-        else if (Input.GetKey(KeyCode.LeftArrow))
+        else if (Input.GetKey(KeyCode.LeftArrow) && !goRight)
         {
             transform.Translate(Vector3.right * Time.deltaTime * -playerSpeed);
+        }
+
+        if (Input.GetKeyUp(KeyCode.LeftArrow))
+        {
+            goRight = !goRight;
         }
     }
 }
