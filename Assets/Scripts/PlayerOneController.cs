@@ -68,11 +68,13 @@ public class PlayerOneController : MonoBehaviour
     public void StageOneIncrement()
     {
         gameObject.transform.localScale = new Vector2((0.3f + (0.3f * 0.25f)), (0.3f + (0.3f * 0.25f)));
+        playerSpeed = playerSpeed * 0.75f;
     }
     
     public void StageTwoIncrement()
     {
         gameObject.transform.localScale = new Vector2((0.3f + (0.3f * 1.25f)), (0.3f + (0.3f * 1.25f)));
+        playerSpeed = playerSpeed * 0.25f;
     }
     
     public void StageFinalIncrement()
