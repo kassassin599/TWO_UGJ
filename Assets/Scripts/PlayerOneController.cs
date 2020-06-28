@@ -49,7 +49,7 @@ public class PlayerOneController : MonoBehaviour
         {
             if (hit.collider.CompareTag("Obstacle"))
             {
-                GameManager.Instance.PauseGame();
+                GameManager.Instance.GameOver();
                 gamePause = true;
                 print("GAME PAUSED!!!!!");
             }

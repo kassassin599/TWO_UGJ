@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Spawner : MonoBehaviour
 {
-    public GameObject fallingObstaclePrefab;
+    public GameObject[] fallingObstaclePrefabs;
     public float secondsBetweenSpawns = 1;
     float nextSpawnTime;
 
@@ -25,11 +25,12 @@ public class Spawner : MonoBehaviour
         if (Time.time>nextSpawnTime && !GameManager.Instance.gamePaused)
         {
             nextSpawnTime = Time.time + secondsBetweenSpawns;
+            GameObject spawnObj = fallingObstaclePrefabs[Random.Range(0, fallingObstaclePrefabs.Length - 1)];
 
             float spawnAngle = Random.Range(-spawnAngleMax, spawnAngleMax);
             float spawnSize = Random.Range(spawnSizeMinMax.x, spawnSizeMinMax.y);
             Vector2 spawnPos = new Vector2(Random.Range(-screenHalfSizeWorldUnits.x, screenHalfSizeWorldUnits.x),screenHalfSizeWorldUnits.y + spawnSize);
-            GameObject newObstacle = (GameObject)Instantiate(fallingObstaclePrefab, spawnPos, Quaternion.Euler(Vector3.forward*spawnAngle));
+            GameObject newObstacle = (GameObject)Instantiate(spawnObj, spawnPos, Quaternion.Euler(Vector3.forward*spawnAngle));
             newObstacle.transform.localScale = Vector2.one * spawnSize;
         }
 
