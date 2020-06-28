@@ -22,7 +22,7 @@ public class Spawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Time.time>nextSpawnTime)
+        if (Time.time>nextSpawnTime && !GameManager.Instance.gamePaused)
         {
             nextSpawnTime = Time.time + secondsBetweenSpawns;
 
