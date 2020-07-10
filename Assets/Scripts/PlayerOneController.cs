@@ -19,31 +19,55 @@ public class PlayerOneController : MonoBehaviour
 
     public GameManager.Stage stage;
 
+    float playerSize;
+
+    Animator playerAnimator;
+
+    float initialSpeed;
+
+    AudioSource audioSource;
+    [SerializeField]
+    AudioClip gulpSound;
+
+    [SerializeField]
+    Transform rayOrigin;
+
     private void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+        initialSpeed = playerSpeed;
         Physics2D.queriesStartInColliders = false;
-        
+        playerSize = transform.localScale.x;
+        playerAnimator = GetComponent<Animator>();
     }
 
     bool gamePause = false;
 
     private void Update()
     {
-        if (Input.GetKey(KeyCode.A) && goRight)
+        if (Input.GetKey(KeyCode.LeftArrow) && goRight)
         {
+            transform.rotation = Quaternion.Euler(0, 0, 0);
             transform.Translate(Vector3.right * Time.deltaTime * playerSpeed);
+            playerAnimator.SetBool("Walk", true);
         }
-        else if (Input.GetKey(KeyCode.A) && !goRight)
+        else if (Input.GetKey(KeyCode.LeftArrow) && !goRight)
         {
-            transform.Translate(Vector3.right * Time.deltaTime * -playerSpeed);
+            transform.rotation = Quaternion.Euler(0, -180, 0);
+            transform.Translate(Vector3.right * Time.deltaTime * playerSpeed);
+            playerAnimator.SetBool("Walk", true);
+        }
+        else
+        {
+            playerAnimator.SetBool("Walk", false);
         }
 
-        if (Input.GetKeyUp(KeyCode.A))
+        if (Input.GetKeyUp(KeyCode.LeftArrow))
         {
             goRight = !goRight;
         }
 
-        hit = Physics2D.Raycast(transform.position, Vector2.right, lineLength, layerMask);
+        hit = Physics2D.Raycast(rayOrigin.position, Vector2.right, lineLength, layerMask);
 
         if (hit && !gamePause)
         {
@@ -55,10 +79,10 @@ public class PlayerOneController : MonoBehaviour
             }
             else if(hit.collider.CompareTag("Player"))
             {
-                line.transform.position = transform.position;
+                line.transform.position = new Vector3(transform.position.x, transform.position.y - 0.05f, transform.position.z);
                 float distance = ((Vector2)hit.point - (Vector2)transform.position).magnitude;
                 line.SetPosition(1, Vector2.right* distance);
-                Debug.DrawLine(transform.position, hit.point, Color.red);
+                Debug.DrawLine(rayOrigin.position, hit.point, Color.red);
                 print(hit);
             }
 
@@ -67,19 +91,20 @@ public class PlayerOneController : MonoBehaviour
 
     public void StageOneIncrement()
     {
-        gameObject.transform.localScale = new Vector2((0.3f + (0.3f * 0.25f)), (0.3f + (0.3f * 0.25f)));
+        gameObject.transform.localScale = new Vector2((playerSize + (playerSize * 0.25f)), (playerSize + (playerSize * 0.25f)));
         playerSpeed = playerSpeed * 0.75f;
     }
     
     public void StageTwoIncrement()
     {
-        gameObject.transform.localScale = new Vector2((0.3f + (0.3f * 1.25f)), (0.3f + (0.3f * 1.25f)));
+        gameObject.transform.localScale = new Vector2((playerSize + (playerSize * 1.25f)), (playerSize + (playerSize * 1.25f)));
         playerSpeed = playerSpeed * 0.25f;
     }
     
     public void StageFinalIncrement()
     {
-        gameObject.transform.localScale = new Vector2(0.3f, 0.3f);
+        gameObject.transform.localScale = new Vector2(playerSize, playerSize);
+        GameManager.Instance.GameOver();
         GameManager.Instance.PauseGame();
     }
 
@@ -93,6 +118,8 @@ public class PlayerOneController : MonoBehaviour
         }
         else if (collision.collider.CompareTag("Obstacle"))
         {
+            audioSource.clip = gulpSound;
+            audioSource.Play();
             switch (stage)
             {
                 case GameManager.Stage.StageOne:
@@ -106,6 +133,27 @@ public class PlayerOneController : MonoBehaviour
                 case GameManager.Stage.StageFinal:
                     StageFinalIncrement();
                     stage = GameManager.Stage.StageOne;
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (collision.collider.CompareTag("PowerUp"))
+        {
+            audioSource.clip = gulpSound;
+            audioSource.Play();
+            switch (stage)
+            {
+                case GameManager.Stage.StageOne:
+                    break;
+                case GameManager.Stage.StageTwo:
+                    gameObject.transform.localScale = new Vector2(playerSize, playerSize);
+                    playerSpeed = initialSpeed;
+                    stage = GameManager.Stage.StageOne;
+                    break;
+                case GameManager.Stage.StageFinal:
+                    StageOneIncrement();
+                    stage = GameManager.Stage.StageTwo;
                     break;
                 default:
                     break;

@@ -11,18 +11,44 @@ public class PlayerTwoController : MonoBehaviour
 
     public GameManager.Stage stage;
 
+    float playerSize;
+
+    Animator playerAnimator;
+    float initialSpeed;
+
+    AudioSource audioSource;
+    [SerializeField]
+    AudioClip gulpSound;
+
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+        initialSpeed = playerSpeed;
+        initialSpeed = playerSpeed;
+        playerSize = transform.localScale.x;
+        playerAnimator = GetComponent<Animator>();
+    }
+
     private void Update()
     {
-        if (Input.GetKey(KeyCode.LeftArrow) && goRight)
+        if (Input.GetKey(KeyCode.RightArrow) && goRight)
         {
+            transform.rotation = Quaternion.Euler(0, 0, 0);
             transform.Translate(Vector3.right * Time.deltaTime * playerSpeed);
+            playerAnimator.SetBool("Walk", true);
         }
-        else if (Input.GetKey(KeyCode.LeftArrow) && !goRight)
+        else if (Input.GetKey(KeyCode.RightArrow) && !goRight)
         {
-            transform.Translate(Vector3.right * Time.deltaTime * -playerSpeed);
+            transform.rotation = Quaternion.Euler(0, -180, 0);
+            transform.Translate(Vector3.right * Time.deltaTime * playerSpeed);
+            playerAnimator.SetBool("Walk", true);
+        }
+        else
+        {
+            playerAnimator.SetBool("Walk", false);
         }
 
-        if (Input.GetKeyUp(KeyCode.LeftArrow))
+        if (Input.GetKeyUp(KeyCode.RightArrow))
         {
             goRight = !goRight;
         }
@@ -30,19 +56,20 @@ public class PlayerTwoController : MonoBehaviour
 
     public void StageOneIncrement()
     {
-        gameObject.transform.localScale = new Vector2((0.3f + (0.3f * 0.25f)), (0.3f + (0.3f * 0.25f)));
+        gameObject.transform.localScale = new Vector2((playerSize + (playerSize * 0.25f)), (playerSize + (playerSize * 0.25f)));
         playerSpeed = playerSpeed * 0.75f;
     }
 
     public void StageTwoIncrement()
     {
-        gameObject.transform.localScale = new Vector2((0.3f + (0.3f * 1.25f)), (0.3f + (0.3f * 1.25f)));
+        gameObject.transform.localScale = new Vector2((playerSize + (playerSize * 1.25f)), (playerSize + (playerSize * 1.25f)));
         playerSpeed = playerSpeed * 0.25f;
     }
 
     public void StageFinalIncrement()
     {
-        gameObject.transform.localScale = new Vector2(0.3f, 0.3f);
+        gameObject.transform.localScale = new Vector2(playerSize, playerSize);
+        GameManager.Instance.GameOver();
         GameManager.Instance.PauseGame();
     }
 
@@ -55,6 +82,8 @@ public class PlayerTwoController : MonoBehaviour
         }
         else if (collision.collider.CompareTag("Obstacle"))
         {
+            audioSource.clip = gulpSound;
+            audioSource.Play();
             switch (stage)
             {
                 case GameManager.Stage.StageOne:
@@ -68,6 +97,27 @@ public class PlayerTwoController : MonoBehaviour
                 case GameManager.Stage.StageFinal:
                     StageFinalIncrement();
                     stage = GameManager.Stage.StageOne;
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (collision.collider.CompareTag("PowerUp"))
+        {
+            audioSource.clip = gulpSound;
+            audioSource.Play();
+            switch (stage)
+            {
+                case GameManager.Stage.StageOne:
+                    break;
+                case GameManager.Stage.StageTwo:
+                    gameObject.transform.localScale = new Vector2(playerSize, playerSize);
+                    playerSpeed = initialSpeed;
+                    stage = GameManager.Stage.StageOne;
+                    break;
+                case GameManager.Stage.StageFinal:
+                    StageOneIncrement();
+                    stage = GameManager.Stage.StageTwo;
                     break;
                 default:
                     break;

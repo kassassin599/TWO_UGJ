@@ -25,7 +25,7 @@ public class Spawner : MonoBehaviour
         if (Time.time>nextSpawnTime && !GameManager.Instance.gamePaused)
         {
             nextSpawnTime = Time.time + secondsBetweenSpawns;
-            GameObject spawnObj = fallingObstaclePrefabs[Random.Range(0, fallingObstaclePrefabs.Length - 1)];
+            GameObject spawnObj = fallingObstaclePrefabs[Random.Range(0, fallingObstaclePrefabs.Length)];
 
             float spawnAngle = Random.Range(-spawnAngleMax, spawnAngleMax);
             float spawnSize = Random.Range(spawnSizeMinMax.x, spawnSizeMinMax.y);
